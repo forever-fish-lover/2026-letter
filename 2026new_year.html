@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>給品茵 ❤️</title>
+    <style>
+        /* --- CSS 樣式 --- */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* 禁止背景滑動 */
+            background: #020202;
+            font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* 按鈕層 */
+        #intro {
+            z-index: 20;
+            text-align: center;
+            width: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: opacity 1s;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, #ff3366, #ff6b6b);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(255, 51, 102, 0.6);
+            animation: pulse 1.5s infinite;
+            touch-action: manipulation;
+            font-weight: bold;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 40px rgba(255, 51, 102, 0.8);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+            }
+        }
+
+        /* 卡片層 */
+        #card {
+            display: none;
+            position: relative;
+            z-index: 10;
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 30px 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
+            width: 500px;
+            max-width: 85%;
+            max-height: 75vh;
+
+            /* 隱藏捲軸但保留滑動 */
+            overflow-y: auto;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+            /* 讓捲動更滑順 */
+        }
+
+        #card::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* SVG 容器 */
+        .svg-container {
+            margin: 0 auto 15px auto;
+            width: 160px;
+            height: auto;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+        }
+
+        /* 側面貓咪線條 */
+        .line-art {
+            fill: none;
+            stroke: #fff;
+            stroke-width: 5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 1500;
+            stroke-dashoffset: 1500;
+            animation: draw 3s forwards ease-in-out;
+        }
+
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        h1 {
+            color: #ffeb3b;
+            text-shadow: 0 0 15px #ffeb3b;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            min-height: 50px;
+            white-space: pre-wrap;
+            text-align: left;
+            display: inline-block;
+            width: 100%;
+            color: #f0f0f0;
+            padding-bottom: 20px;
+            /* 底部留白，避免字貼底 */
+        }
+
+        /* --- 結局特效層 (加大版) --- */
+        #finale-overlay {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 30;
+            text-align: center;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .love-text {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #ff0044;
+            text-shadow:
+                0 0 10px #fff,
+                0 0 20px #ff3366,
+                0 0 40px #ff3366,
+                0 0 80px #ff3366;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, heartbeat 1.2s infinite 0.8s;
+            opacity: 0;
+            white-space: nowrap;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1.2);
+            }
+
+            15% {
+                transform: scale(1.4);
+            }
+
+            30% {
+                transform: scale(1.2);
+            }
+
+            45% {
+                transform: scale(1.4);
+            }
+
+            60% {
+                transform: scale(1.2);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .love-text {
+                font-size: 2.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div id="intro">
+        <button class="btn" onclick="startShow()">💌 點擊開啟你的驚喜</button>
+    </div>
+
+    <div id="card">
+        <div class="svg-container floating">
+            <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+                <path class="line-art"
+                    d="M 40 100 Q 40 80 55 70 L 65 50 L 85 70 Q 110 80 140 70 Q 170 60 180 90 C 190 120, 160 130, 150 110 Q 155 130 145 140 L 130 140 Q 135 125 110 125 L 80 125 Q 75 140 65 140 L 50 140 Q 55 110 45 110 Q 35 110 40 100" />
+            </svg>
+        </div>
+
+        <h1>Happy New Year! ✨</h1>
+        <p id="message"></p>
+    </div>
+
+    <div id="finale-overlay">
+        <div class="love-text">❤️ 我愛妳 ❤️</div>
+    </div>
+
+    <audio id="bgm" loop>
+        <source src="love.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // --- 設定區：你的專屬情書 ---
+        const myMessage = "窩ㄉ可愛咪：\n\n當妳看到這封信的不久後\n就是2026年了\n很快地，眨眼間，窩們一起已經快一年了呢\n\n這一年中，窩們也經歷了許許多多的事情\n有歡笑、有幸福、有難過、有酸澀\n如同窩常常喜歡說ㄉ\n窩知道 世上咪有完美的愛情\n人呢 也本就無十全十美的\n即便有完美的存在 也將並非窩們是那天選之人\n\n每次的打鬧、歡笑、哭泣\n當下情感的體會，這些點滴的積累\n窩相信 也一直這咪認為\n是在鞏固窩們ㄉ感情\n讓彼此更加珍惜與接近\n\n雖然 像咪說的 \n窩總是笨笨ㄉ👉👈\n然後 也很木頭🪵吧🥺\n也總是咪有辦法做到符合咪的期待\n還讓咪哭哭🥹 對不起\n謝謝咪總是醬子地包容窩\n也在窩難過的時候 抱抱窩\n\n想和咪說 窩愛妳～ 一直一直都是\n也咪有變過～ \n窩和咪說的好多好多 一直就是窩ㄉ心中所想\n\n這一年 有尼ㄉ陪伴\n是窩最幸福的事ㄌ🥹\n新的一年 後年 大後年 大大大後年\n還有之後的好多好多好多年\n都請咪多多指教ㄌ\n\n窩愛尼～ 窩ㄉ小寶寶～ 窩ㄉ小貓咪～\n還有…\n\n窩的 \n陳品茵小朋友～\n\n窩愛妳 永遠永遠永遠 都不會變❤️\n\n新年快樂呀~\\(≧▽≦)/~\n窩ㄉ小寶寶";
+        // ------------------------------
+
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        let cw = window.innerWidth;
+        let ch = window.innerHeight;
+        let fireworks = [];
+        let particles = [];
+        let hue = 120;
+        let timerTotal = 90;
+        let timerTick = 0;
+        let isFinale = false;
+
+        canvas.width = cw;
+        canvas.height = ch;
+
+        function random(min, max) { return Math.random() * (max - min) + min; }
+
+        class Firework {
+            constructor(sx, sy, tx, ty) {
+                this.x = sx; this.y = sy; this.sx = sx; this.sy = sy;
+                this.tx = tx; this.ty = ty;
+                this.distanceToTarget = Math.sqrt(Math.pow(tx - sx, 2) + Math.pow(ty - sy, 2));
+                this.distanceTraveled = 0;
+                this.coordinates = [];
+                this.coordinateCount = 3;
+                while (this.coordinateCount--) { this.coordinates.push([this.x, this.y]); }
+                this.angle = Math.atan2(ty - sy, tx - sx);
+                this.speed = 2;
+                this.acceleration = 1.05;
+                this.brightness = random(50, 70);
+            }
+            update(index) {
+                this.coordinates.pop();
+                this.coordinates.unshift([this.x, this.y]);
+                this.speed *= this.acceleration;
+                let vx = Math.cos(this.angle) * this.speed;
+                let vy = Math.sin(this.angle) * this.speed;
+                this.distanceTraveled = Math.sqrt(Math.pow(this.sx - this.x, 2) + Math.pow(this.sy - this.y, 2));
+                if (this.distanceTraveled >= this.distanceToTarget) {
+                    createParticles(this.tx, this.ty);
+                    fireworks.splice(index, 1);
+                } else {
+                    this.x += vx; this.y += vy;
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+                ctx.lineTo(this.x, this.y);
+                ctx.strokeStyle = 'hsl(' + hue + ', 100%, ' + this.brightness + '%)';
+                ctx.stroke();
+            }
+        }
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x; this.y = y;
+                this.coordinates = [];
+                this.coordinateCount = 8;
+                while (this.coordinateCount--) { this.coordinates.push([this.x, this.y]); }
+                this.angle = random(0, Math.PI * 2);
+
+                if (isFinale) {
+                    this.speed = random(5, 25);
+                } else {
+                    this.speed = random(1, 12);
+                }
+
+                this.friction = 0.96;
+                this.gravity = 0.6;
+                this.hue = random(hue - 50, hue + 50);
+                this.brightness = random(60, 90);
+                this.alpha = 1;
+                this.decay = random(0.005, 0.015);
+            }
+            update(index) {
+                this.coordinates.pop();
+                this.coordinates.unshift([this.x, this.y]);
+                this.speed *= this.friction;
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed + this.gravity;
+                this.alpha -= this.decay;
+                if (this.alpha <= this.decay) { particles.splice(index, 1); }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+                ctx.lineTo(this.x, this.y);
+                ctx.strokeStyle = 'hsla(' + this.hue + ', 100%, ' + this.brightness + '%, ' + this.alpha + ')';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        function createParticles(x, y) {
+            let particleCount = isFinale ? 100 : 40;
+            while (particleCount--) { particles.push(new Particle(x, y)); }
+        }
+
+        function loop() {
+            requestAnimationFrame(loop);
+            hue = random(0, 360);
+
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.fillRect(0, 0, cw, ch);
+            ctx.globalCompositeOperation = 'lighter';
+
+            let i = fireworks.length;
+            while (i--) { fireworks[i].draw(); fireworks[i].update(i); }
+
+            let j = particles.length;
+            while (j--) { particles[j].draw(); particles[j].update(j); }
+
+            if (timerTick >= (isFinale ? 8 : timerTotal)) {
+                if (!isFinale) {
+                    if (Math.random() > 0.4)
+                        fireworks.push(new Firework(cw / 2, ch, random(0, cw), random(0, ch * 0.6)));
+                } else {
+                    fireworks.push(new Firework(cw * 0.2, ch, random(0, cw / 2), random(0, ch * 0.5)));
+                    fireworks.push(new Firework(cw * 0.8, ch, random(cw / 2, cw), random(0, ch * 0.5)));
+                    if (Math.random() > 0.5) fireworks.push(new Firework(cw / 2, ch, random(cw / 4, cw * 0.75), random(0, ch * 0.4)));
+                }
+                timerTick = 0;
+            } else {
+                timerTick++;
+            }
+        }
+
+        function startShow() {
+            document.getElementById('intro').style.opacity = 0;
+            setTimeout(() => { document.getElementById('intro').style.display = 'none'; }, 1000);
+
+            const audio = document.getElementById('bgm');
+            audio.volume = 0.5;
+            audio.play().catch((e) => console.log("需互動才能播放音樂"));
+
+            loop();
+
+            setTimeout(() => {
+                const card = document.getElementById('card');
+                card.style.display = 'block';
+                setTimeout(() => { card.style.opacity = 1; typeWriter(); }, 100);
+            }, 1000);
+        }
+
+        let charIndex = 0;
+        function typeWriter() {
+            const speed = 100; // 打字速度加快
+            const messageElement = document.getElementById("message");
+            const card = document.getElementById('card'); // 取得卡片元素
+
+            if (charIndex < myMessage.length) {
+                const char = myMessage.charAt(charIndex);
+                messageElement.innerHTML += char === '\n' ? '<br>' : char;
+                charIndex++;
+
+                // --- 關鍵修改：自動捲動到底部 ---
+                card.scrollTop = card.scrollHeight;
+
+                setTimeout(typeWriter, speed);
+            } else {
+                setTimeout(triggerFinale, 800);
+            }
+        }
+
+        function triggerFinale() {
+            isFinale = true;
+            document.getElementById('finale-overlay').style.display = 'block';
+        }
+
+        window.addEventListener('resize', () => {
+            cw = window.innerWidth;
+            ch = window.innerHeight;
+            canvas.width = cw;
+            canvas.height = ch;
+        });
+    </script>
+</body>
+
+</html>
